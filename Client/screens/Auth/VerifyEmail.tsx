@@ -3,7 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-nativ
 
 const VerifyEmail = () => {
   const [code, setCode] = useState(['', '', '', '', '', '']);
-  const inputsRef = useRef([]);
+  const inputsRef = useRef<any>([]);
 
   const handleChangeText = (text : string, index : number) => {
     if (text.length > 0) {

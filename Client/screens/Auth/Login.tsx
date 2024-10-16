@@ -2,24 +2,22 @@ import { Button, Pressable, SafeAreaView, StyleSheet, Text, TextInput, Touchable
 import React, { useState } from 'react'
 import CheckBox from 'react-native-check-box'
 import Ionicons from '@expo/vector-icons/Ionicons'
-import { useNavigation } from '@react-navigation/native' // Import navigation hook
 import { Link } from 'expo-router';
 import axios from 'axios'
 
 
-const Login = () => {
+const Login = ({navigation} : any) => {
   const [isSelected, setSelection] = useState(false)
-  const navigation = useNavigation() // Initialize navigation
   const [values, setValues] = useState({
     email: '',
     password: ''
   });
 
 
-  const createUser = async () => {
+  const login = async () => {
     try {
       console.log('here')
-      const res = await axios.post('http://192.168.205.46:8080/api/v1/user/login', values); // Fixed typo here
+      const res = await axios.post('http://192.168.212.46:8080/api/v1/user/login', values); 
       console.log('here')
       if (res.status >= 200 && res.status < 300) {
         console.log('Signup successfully');
@@ -27,7 +25,8 @@ const Login = () => {
           email: '',
           password: ''
         })
-        
+        navigation.navigate('Main')
+
       }
     } catch (error: any) {
       console.log('Error signing up:', error.response ? error.response.data : error.message);
@@ -69,7 +68,7 @@ const Login = () => {
               }}
             >
               <Text style={styles.inpText}>Password</Text>
-              <Link href='/ForgetPassword' style={[styles.inpText, { fontSize: 13, fontWeight: '600', color: '#0000EE' }]}>Forget password</Link>
+              <Text onPress={() => navigation.navigate('ForgetPassword')}  style={[styles.inpText, { fontSize: 13, fontWeight: '600', color: '#0000EE' }]}>Forget password</Text>
             </View>
             <TextInput placeholder='Password' style={styles.inp} secureTextEntry={true} onChangeText={(text) => changeHandler('password', text)} />
           </View>
@@ -84,22 +83,16 @@ const Login = () => {
             />
           </View>
           <TouchableOpacity style={[styles.googlebtn, styles.loginbtn]}>
-            <Text style={[styles.textbtn, { color: 'white', fontWeight: '500' }]} onPress={createUser}>Login</Text>
+            <Text style={[styles.textbtn, { color: 'white', fontWeight: '500' }]} onPress={login}>Login</Text>
           </TouchableOpacity>
           <Text style={{ marginTop: 30, textAlign: 'center' }}>
             Don't have an account?{' '}
-            <Link
-              href='/Signup'
-              style={{ color: '#0000EE' }} // Navigate to Signup screen
+            <Text
+              style={{ color: '#0000EE' }}
+              onPress={() => navigation.navigate('Signup')} // Navigate to Signup screen
             >
               Sign up here
-            </Link>
-            <Link
-              href='/VerifyEmail'
-              style={{ color: '#0000EE' }} // Navigate to Signup screen
-            >
-              Verify
-            </Link>
+            </Text>
           </Text>
         </View>
       </SafeAreaView>

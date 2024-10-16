@@ -32,7 +32,7 @@ const Stack = createNativeStackNavigator();
 
 function App() {
 
-  const user = false
+  const user = true
 
   return (
     <Stack.Navigator initialRouteName={!user ? 'Auth' : 'Main'}>

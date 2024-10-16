@@ -1,14 +1,11 @@
-import { Button, Pressable, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import React, { useState } from 'react';
 import CheckBox from 'react-native-check-box';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useNavigation } from '@react-navigation/native'; // Import navigation hook
-import { Link } from 'expo-router';
 import axios from 'axios';
 
-const Signup = () => {
+const Signup = ({navigation} : any) => {
     const [isSelected, setSelection] = useState(false);
-    const navigation = useNavigation(); // Initialize navigation
     const [values, setValues] = useState({
         name: '',
         email: '',
@@ -19,7 +16,7 @@ const Signup = () => {
     const createUser = async () => {
         try {
             console.log('here')
-            const res = await axios.post('http://192.168.205.46:8080/api/v1/user/signup', values); // Fixed typo here
+            const res = await axios.post('http://192.168.212.46:8080/api/v1/user/signup', values); // Fixed typo here
             console.log('here')
             if (res.status >= 200 && res.status < 300) {
                 console.log('Signup successfully');
@@ -29,6 +26,7 @@ const Signup = () => {
                     password: '',
                     confirmPassword: ''
                 })
+                navigation.navigate('Main')
             }
         } catch (error: any) {
             console.log('Error signing up:', error.response ? error.response.data : error.message);
@@ -120,12 +118,12 @@ const Signup = () => {
                             </TouchableOpacity>
                             <Text style={{ marginTop: 30, textAlign: 'center' }}>
                                 Have an account?{' '}
-                                <Link
-                                    href='/'
+                                <Text
+                                    onPress={()=>{navigation.navigate('Login')}}
                                     style={{ color: '#0000EE' }} // Navigate to Signin screen
                                 >
                                     Sign in here
-                                </Link>
+                                </Text>
                             </Text>
                         </View>
                     </SafeAreaView>

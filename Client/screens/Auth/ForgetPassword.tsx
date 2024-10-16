@@ -1,11 +1,11 @@
 import React, { useState, useRef } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 
-const VerifyEmail = () => {
+const ForgetPassword = () => {
   const [code, setCode] = useState(['', '', '', '', '', '']);
-  const inputsRef = useRef([]);
+  const inputsRef = useRef<any>([]);
 
-  const handleChangeText = (text, index) => {
+  const handleChangeText = (text : any, index : any) => {
     const newCode = [...code];
 
     // If the user enters text, update the current index
@@ -20,7 +20,7 @@ const VerifyEmail = () => {
     }
   };
 
-  const handleKeyPress = (e, index) => {
+  const handleKeyPress = (e : any, index : any) => {
     const newCode = [...code];
 
     // If the user presses backspace
@@ -80,7 +80,7 @@ const VerifyEmail = () => {
   );
 };
 
-export default VerifyEmail;
+export default ForgetPassword;
 
 const styles = StyleSheet.create({
   container: {
