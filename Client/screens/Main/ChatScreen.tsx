@@ -1,4 +1,4 @@
-import { Image, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View, ScrollView } from 'react-native'
+import { Image, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View, ScrollView, Alert } from 'react-native'
 import React, { useState } from 'react'
 import me from '@/assets/images/ME.jpg'
 import AntDesign from '@expo/vector-icons/AntDesign';
