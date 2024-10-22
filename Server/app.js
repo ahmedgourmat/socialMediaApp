@@ -1,5 +1,6 @@
 const express = require('express')
 const cors = require('cors')
+const bodyParser = require('body-parser');
 const app = express()
 const connectDB = require('./config/DB')
 const userRoutes = require('./routes/UserRoutes')
@@ -11,7 +12,10 @@ const commentsRoutes = require('./routes/CommentsRoutes')
 require('dotenv').config()
 
 app.use(cors())
+app.use(bodyParser.json({ limit: '10mb' })); // Adjust the limit as needed
+app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 app.use(express.json())
+
 
 app.use('/api/v1/user', userRoutes)
 app.use('/api/v1/chat', chatRoutes)

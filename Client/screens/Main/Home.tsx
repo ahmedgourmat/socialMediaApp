@@ -1,11 +1,13 @@
 import { Alert, FlatList, Image, SafeAreaView, ScrollView, StyleSheet, Text, TouchableHighlight, TouchableOpacity, View } from 'react-native';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Me from '@/assets/images/ME.jpg';
 import Post from './Post';
 import * as ImagePicker from 'expo-image-picker';
 import { PanGestureHandler, State } from 'react-native-gesture-handler';
+import useCrud from '@/hooks/useCrud';
+import { UserState } from '@/hooks/contextHook';
 
 const story = [
   { name: 'User 1', img: Me, seen: true },
@@ -28,7 +30,30 @@ const story = [
 const Home = ({ navigation }: any) => {
   // Sort the story: false (unseen) stories first, then true (seen) stories
   const sortedStory = [...story].sort((a, b) => (a.seen === b.seen ? 0 : a.seen ? 1 : -1));
+  const [post , setPost] = useState()
+  const {get} = useCrud()
+  const {token} = UserState() ?? {}
 
+
+  useEffect(()=>{
+    const fetchingData = async()=>{
+
+      try {
+
+        console.log(token)
+        
+        const response = await get('api/v1/post' , token)
+        setPost(response)
+
+      } catch (error) {
+        console.log(error) 
+      }
+
+    }
+
+    fetchingData()
+
+  },[])
 
   const openCamera = async () => {
     // Request camera permissions
@@ -87,8 +112,8 @@ const Home = ({ navigation }: any) => {
       <PanGestureHandler onGestureEvent={handleGesture} activeOffsetX={[-10, 10]}>
         <FlatList
           style={styles.postList}
-          data={[{ key: 'item1' }, { key: 'item2' }, { key: 'item2' }, { key: 'item2' }, { key: 'item2' }, { key: 'item2' }, { key: 'item2' }]} // Add more post data
-          renderItem={({ item }) => <Post />}
+          data={post} // Add more post data
+          renderItem={({ item }) => <Post post={item} />}
         />
       </PanGestureHandler>
     </SafeAreaView>

@@ -4,7 +4,7 @@ import CheckBox from 'react-native-check-box'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import { Link } from 'expo-router';
 import axios from 'axios'
-
+import * as SecureStore from 'expo-secure-store'
 
 const Login = ({navigation} : any) => {
   const [isSelected, setSelection] = useState(false)
@@ -17,10 +17,12 @@ const Login = ({navigation} : any) => {
   const login = async () => {
     try {
       console.log('here')
-      const res = await axios.post('http://192.168.212.46:8080/api/v1/user/login', values); 
+      const res = await axios.post('http://192.168.21.46:8080/api/v1/user/login', values); 
       console.log('here')
       if (res.status >= 200 && res.status < 300) {
-        console.log('Signup successfully');
+        console.log(res.data)
+        await SecureStore.setItemAsync('token' , res.data.token)
+        await SecureStore.setItemAsync('user' ,  JSON.stringify(res.data.user))
         setValues({
           email: '',
           password: ''

@@ -26,9 +26,12 @@
       "output": "static",
       "favicon": "./assets/images/favicon.png"
     },
-    "entryPoint": "./App.tsx", 
+    "entryPoint": "./App.tsx",
     "experiments": {
-      "typedRoutes": false 
-    }
+      "typedRoutes": false
+    },
+    "plugins": [
+      "expo-secure-store"
+    ]
   }
 }

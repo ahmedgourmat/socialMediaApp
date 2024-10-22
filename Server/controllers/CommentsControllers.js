@@ -7,20 +7,29 @@ const createComment = async (req, res) => {
 
     try {
         // Check if the post exists
+
+        console.log(text)
+
         const post = await Post.findById(postId);
         if (!post) {
             return res.status(404).json({ message: 'Post not found' });
         }
 
         // Create a new comment
-        const comment = await Comment.create({
+        let comment = await Comment.create({
             text,
             userC: userId,
             postC: postId
         });
 
+        comment = await Comment.findById(comment._id)
+            .populate('userC', 'name')  // Populate the user details
+            .sort({ createdAt: -1 });
+
+
         res.status(201).json({ message: 'Comment created successfully', comment });
     } catch (error) {
+        console.log(error)
         res.status(500).json({ error: error.message });
     }
 };
@@ -30,12 +39,15 @@ const getComments = async (req, res) => {
 
     try {
         // Get comments for the specific post, populating the user information
+        console.log('here')
         const comments = await Comment.find({ postC: postId })
             .populate('userC', 'name')  // Populate the user details
             .sort({ createdAt: -1 });  // Sort by latest first
 
         res.status(200).json(comments);
     } catch (error) {
+        console.log(error)
+
         res.status(500).json({ error: error.message });
     }
 };

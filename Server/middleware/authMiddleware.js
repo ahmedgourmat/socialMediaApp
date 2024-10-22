@@ -6,6 +6,7 @@ const authMiddleware = async (req, res, next) => {
     try {
         const { authorization } = req.headers;
 
+
         if (!authorization) {
             throw new Error('Authorization header is missing');
         }
@@ -16,17 +17,22 @@ const authMiddleware = async (req, res, next) => {
             throw new Error('Token is missing');
         }
 
-        const decoded = jwt.verify(token, process.env.JWT_SECRETE);
+
+
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
 
         if (!decoded || !decoded.id) {
             throw new Error('Invalid token');
-        }
+        }    
 
         const user = await User.findById(decoded.id).select('-password')
+
 
         if (!user) {
             throw new Error('user not found');
         }
+
 
         req.user = user._id
         next();

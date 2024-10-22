@@ -3,8 +3,9 @@ import React, { useState } from 'react';
 import CheckBox from 'react-native-check-box';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import axios from 'axios';
+import * as SecureStore from 'expo-secure-store'
 
-const Signup = ({navigation} : any) => {
+const Signup = ({ navigation }: any) => {
     const [isSelected, setSelection] = useState(false);
     const [values, setValues] = useState({
         name: '',
@@ -16,9 +17,12 @@ const Signup = ({navigation} : any) => {
     const createUser = async () => {
         try {
             console.log('here')
-            const res = await axios.post('http://192.168.212.46:8080/api/v1/user/signup', values); // Fixed typo here
+            const res = await axios.post('http://192.168.21.46:8080/api/v1/user/signup', values); // Fixed typo here
             console.log('here')
             if (res.status >= 200 && res.status < 300) {
+                console.log(res.data)
+                await SecureStore.setItemAsync('token', res.data.token)
+                await SecureStore.setItemAsync('user',  JSON.stringify(res.data.user))
                 console.log('Signup successfully');
                 setValues({
                     name: '',
@@ -119,7 +123,7 @@ const Signup = ({navigation} : any) => {
                             <Text style={{ marginTop: 30, textAlign: 'center' }}>
                                 Have an account?{' '}
                                 <Text
-                                    onPress={()=>{navigation.navigate('Login')}}
+                                    onPress={() => { navigation.navigate('Login') }}
                                     style={{ color: '#0000EE' }} // Navigate to Signin screen
                                 >
                                     Sign in here
@@ -145,20 +149,20 @@ const styles = StyleSheet.create({
     container: {
         alignItems: 'center',
         padding: 20,
-        marginTop: 10, 
+        marginTop: 10,
     },
     header: {
         fontSize: 25,
         fontWeight: '600'
     },
     googlebtn: {
-        width: '100%' ,
-        paddingVertical: 15 ,
-        backgroundColor: '#F4F7FF' ,
-        alignItems: 'center' ,
-        marginTop: 10 ,
-        borderRadius: 8 ,
-        flexDirection: 'row' ,
+        width: '100%',
+        paddingVertical: 15,
+        backgroundColor: '#F4F7FF',
+        alignItems: 'center',
+        marginTop: 10,
+        borderRadius: 8,
+        flexDirection: 'row',
         justifyContent: 'center'
     },
     textbtn: {

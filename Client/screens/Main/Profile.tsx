@@ -14,8 +14,14 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import backImg from '@/assets/images/backgroundProfile.png';
 import Me from '@/assets/images/ME.jpg';
 import Post from './Post';
+import { UserInfo } from '@/context/UserInfo';
+import { UserState } from '@/hooks/contextHook';
 
 const Profile = ({ navigation }: any) => {
+
+  const {user} = UserState() ?? {}
+
+
   const scrollY = useRef(new Animated.Value(0)).current;
 
   // Interpolating translateY for the image and container
@@ -83,7 +89,7 @@ const Profile = ({ navigation }: any) => {
               >
                 <Image source={Me} style={styles.profileImg} />
                 <Animated.View style={{ marginTop: 50 }}>
-                  <Text style={{ fontSize: 18, fontWeight: '700' }}>@2xmep</Text>
+                  <Text style={{ fontSize: 18, fontWeight: '700' }}>@{user.name}</Text>
                 </Animated.View>
               </Animated.View>
               <View style={[styles.followersInfo, { marginLeft: 20 }]}>

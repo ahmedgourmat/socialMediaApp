@@ -1,23 +1,28 @@
 const Post = require('../models/Post')
-
-
+const cloudinary = require('../config/Cloudinary')
 
 const createPost = async (req, res) => {
-
-    const { img } = req.body
-    const userId = req.user
+    const { img } = req.body; // This should be the base64 image string
+    const userId = req.user;
 
     try {
 
-        await Post.create({ userP: userId, img })
+        // Upload the image to Cloudinary
+        const result = await cloudinary.uploader.upload(img, {
+            folder: 'posts', // Optional: specify a folder
+        });
 
-        res.status(201).json({ message: 'Post has created successfully' })
+        // Create the post with the image URL
+        await Post.create({ userP: userId, img: result.secure_url });
+        console.log('here')
 
+        res.status(201).json({ message: 'Post has been created successfully' });
     } catch (error) {
-        res.status(500).json({ error: error.message })
+        console.error(error); // Log the error for debugging
+        res.status(500).json({ error: error.message });
     }
+};
 
-}
 
 const getPosts = async (req, res) => {
     const { userId } = req.query;  // Use req.query for GET requests
