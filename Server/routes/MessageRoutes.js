@@ -4,6 +4,7 @@ const authMiddleware = require('../middleware/authMiddleware')
 
 
 
-messageRoutes.route('/').post(authMiddleware, createMessage).get(authMiddleware, getMessages)
+messageRoutes.route('/').post(authMiddleware, createMessage)
+messageRoutes.route('/:chatId').get(authMiddleware, getMessages)
 
 module.exports = messageRoutes

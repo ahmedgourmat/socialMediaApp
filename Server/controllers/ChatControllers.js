@@ -17,6 +17,7 @@ const createChat = async (req, res) => {
 
         res.status(201).json({ message: 'Chat created successfully', chat });
     } catch (error) {
+        console.log('chat Error', error)
         res.status(500).json({ error: error.message });
     }
 }
@@ -30,7 +31,13 @@ const getChats = async (req, res) => {
 
         const chats = await Chat.find({ users: userId })
             .populate('users', '-password')
-            .populate('latestMessage')
+            .populate({
+                path: 'latestMessage',
+                populate: {
+                    path: 'sender', // This will populate the sender field inside latestMessage
+                    select: '-password', // You can select specific fields like name and email
+                },
+            })
             .sort({ updatedAt: -1 });
 
 
@@ -63,8 +70,8 @@ const updateChat = async (req, res) => {
             { chatName },  // Update the chatName with the new value
             { new: true }  // Return the updated document
         )
-        .populate('users', 'name')
-        .populate('latestMessage');
+            .populate('users', 'name')
+            .populate('latestMessage');
 
         if (!updatedChat) {
             return res.status(404).json({ message: 'Chat not found' });

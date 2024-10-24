@@ -32,13 +32,19 @@ const createSave = async (req, res) => {
 
 
 const getSaves = async (req, res) => {
-    const userId = req.user._id; // Get the current user's ID
+    const userId = req.user; // Get the current user's ID
 
     try {
         // Get saves for the specific user and populate post details
         const saves = await Saves.find({ userS: userId })
             .populate('userS')
-            .populate('postS') // Populate the post details
+            .populate({
+                path : 'postS',
+                populate : {
+                    path : 'userP' , 
+                    select : '-password'
+                }
+            }) // Populate the post details
             .sort({ createdAt: -1 }); // Sort by latest first
 
         res.status(200).json(saves);
@@ -46,6 +52,27 @@ const getSaves = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+
+const checkSaves = async (req, res) => {
+    const { postId } = req.params;
+    const userId = req.user;
+
+    try {
+        // Check if the post is already saved by the user
+        const existingSave = await Saves.findOne({ userS: userId, postS: postId });
+
+        if (existingSave) {
+            return res.status(200).json({ saved: true, message: 'Post is already saved' });
+        }
+
+        res.status(200).json({ saved: false, message: 'Post is not saved' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+
 
 const deleteSave = async (req, res) => {
     const { saveId } = req.params;
@@ -74,4 +101,4 @@ const deleteSave = async (req, res) => {
     }
 };
 
-module.exports = { createSave, getSaves, deleteSave };
+module.exports = { createSave, getSaves, deleteSave, checkSaves };

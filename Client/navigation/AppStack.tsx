@@ -10,6 +10,8 @@ import Notification from '@/screens/Main/Notification'; // Import Notification
 import Profile from '@/screens/Main/Profile';
 import AddPost from '@/screens/Main/AddPost';
 import ChatScreen from '@/screens/Main/ChatScreen';
+import UserProfile from '@/screens/Main/UserProfile';
+import Saves from '@/screens/Main/Saves';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -102,6 +104,44 @@ const AppNavigator = () => (
     <Stack.Screen
       name="ChatScreen"
       component={ChatScreen}
+      options={{
+        headerShown: false,
+        cardStyleInterpolator: ({ current, layouts }) => ({
+          cardStyle: {
+            transform: [
+              {
+                translateX: current.progress.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [layouts.screen.width, 0],
+                }),
+              },
+            ],
+          },
+        }),
+      }}
+    />
+    <Stack.Screen
+      name="UserProfile"
+      component={UserProfile}
+      options={{
+        headerShown: false,
+        cardStyleInterpolator: ({ current, layouts }) => ({
+          cardStyle: {
+            transform: [
+              {
+                translateX: current.progress.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [layouts.screen.width, 0],
+                }),
+              },
+            ],
+          },
+        }),
+      }}
+    />
+    <Stack.Screen
+      name="Saves"
+      component={Saves}
       options={{
         headerShown: false,
         cardStyleInterpolator: ({ current, layouts }) => ({

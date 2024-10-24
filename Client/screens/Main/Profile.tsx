@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Animated,
   Image,
@@ -16,10 +16,35 @@ import Me from '@/assets/images/ME.jpg';
 import Post from './Post';
 import { UserInfo } from '@/context/UserInfo';
 import { UserState } from '@/hooks/contextHook';
+import useCrud from '@/hooks/useCrud';
 
 const Profile = ({ navigation }: any) => {
 
-  const {user} = UserState() ?? {}
+
+  const { user, token } = UserState() ?? {}
+  const [profile, setProfile] = useState(user)
+  const { get } = useCrud()
+  const [post, setPost] = useState([])
+
+  useEffect(() => {
+    const fetchingData = async () => {
+
+      try {
+
+        console.log(token)
+
+        const response = await get(`api/v1/post?userId=${user._id}`, token)
+        setPost(response)
+
+      } catch (error) {
+        console.log(error)
+      }
+
+    }
+
+    fetchingData()
+
+  }, [])
 
 
   const scrollY = useRef(new Animated.Value(0)).current;
@@ -105,12 +130,11 @@ const Profile = ({ navigation }: any) => {
                 <TouchableOpacity style={[styles.btn, { backgroundColor: '#5790DF' }]}>
                   <Text style={[styles.btnText, { color: 'white' }]}>Edit profile</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.btn}>
-                  <Text style={styles.btnText}>Share Profile</Text>
+                <TouchableOpacity style={styles.btn} onPress={()=>{navigation.navigate('Saves')}}>
+                  <Text style={styles.btnText}>Saves</Text>
                 </TouchableOpacity>
               </View>
             </View>
-            {/* Scrollable content */}
             <Animated.ScrollView
               contentContainerStyle={{ flexGrow: 1 }}
               onScroll={Animated.event(
@@ -121,11 +145,11 @@ const Profile = ({ navigation }: any) => {
               bounces={false}  // Disable bouncing/overscrolling
             >
               <View style={styles.postContainer}>
-                <Post />
-                <Post />
-                <Post />
-                <Post />
-                <Post />
+                {
+                  post.map((item: any) => (
+                    <Post data={item} />
+                  ))
+                }
               </View>
             </Animated.ScrollView>
           </View>

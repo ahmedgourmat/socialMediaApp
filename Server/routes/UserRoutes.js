@@ -1,7 +1,8 @@
 const router = require('express').Router()
-const {signup , login} = require('../controllers/UserControllers')
+const {signup , login , followUser} = require('../controllers/UserControllers')
 const Joi = require('joi')
 const validateRequest = require('../middleware/joiValidation');
+const authMiddleware = require('../middleware/authMiddleware');
 
 
 const signupSchema = Joi.object().keys({
@@ -20,5 +21,6 @@ const loginSchema = Joi.object().keys({
 
 router.route('/signup').post(validateRequest(signupSchema),signup)
 router.route('/login').post(validateRequest(loginSchema),login)
+router.route('/:otherUserId').patch(authMiddleware , followUser)
 
 module.exports = router

@@ -1,11 +1,13 @@
-import { Alert, FlatList, Image, SafeAreaView, ScrollView, StyleSheet, Text, TouchableHighlight, TouchableOpacity, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
+import { Alert, FlatList, Image, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Me from '@/assets/images/ME.jpg';
+import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons';
 import Post from './Post';
 import * as ImagePicker from 'expo-image-picker';
-import { PanGestureHandler, State } from 'react-native-gesture-handler';
+import * as SecureStore from 'expo-secure-store';  // Import SecureStore
+import { PanGestureHandler } from 'react-native-gesture-handler';
 import useCrud from '@/hooks/useCrud';
 import { UserState } from '@/hooks/contextHook';
 
@@ -28,77 +30,66 @@ const story = [
 ];
 
 const Home = ({ navigation }: any) => {
-  // Sort the story: false (unseen) stories first, then true (seen) stories
   const sortedStory = [...story].sort((a, b) => (a.seen === b.seen ? 0 : a.seen ? 1 : -1));
-  const [post , setPost] = useState()
-  const {get} = useCrud()
-  const {token} = UserState() ?? {}
+  const [post, setPost] = useState();
+  const { get } = useCrud();
+  const { token } = UserState() ?? {};
 
-
-  useEffect(()=>{
-    const fetchingData = async()=>{
-
+  useEffect(() => {
+    const fetchingData = async () => {
       try {
-
-        console.log(token)
-        
-        const response = await get('api/v1/post' , token)
-        setPost(response)
-
+        console.log(token);
+        const response = await get('api/v1/post', token);
+        setPost(response);
       } catch (error) {
-        console.log(error) 
+        console.log(error);
       }
+    };
 
-    }
+    fetchingData();
+  }, []);
 
-    fetchingData()
-
-  },[])
-
-  const openCamera = async () => {
-    // Request camera permissions
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Permission needed', 'Camera access is required to take a picture.');
-      return;
-    }
-
-    // Open the camera
-    const result: any = await ImagePicker.launchCameraAsync({
-      allowsEditing: true,  // Let the user edit the picture before using it
-      aspect: [4, 3],       // Aspect ratio for the image
-      quality: 1,           // Image quality, ranging from 0 to 1
-    });
-
-    if (!result.canceled) {
-      // Handle the image result (result.uri contains the image URI)
-      console.log(result.uri); // You can use this URI for uploading or displaying
+  // Function to handle the logout process
+  const disconnect = async () => {
+    try {
+      // Clear any stored user data or tokens
+      await SecureStore.deleteItemAsync('token');
+      await SecureStore.deleteItemAsync('user');
+    } catch (error) {
+      console.log('Error during logout:', error);
     }
   };
 
-
+  // Confirm logout with an alert
+  const confirmLogout = () => {
+    Alert.alert(
+      'Confirm Logout',
+      'Are you sure you want to disconnect?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Yes', onPress: disconnect }
+      ]
+    );
+  };
 
   const handleGesture = ({ nativeEvent }: any) => {
-    if (nativeEvent.translationX > 50) {
-      // Swiped to the right, open the camera
-      openCamera();
-    } else if (nativeEvent.translationX < -50) {
-      // Swiped to the left, open notifications
+    if (nativeEvent.translationX < -50) {
       navigation.navigate('Notification');
     }
   };
-  return (
 
+  return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <View style={styles.headerIcons}>
-          <FontAwesome5 name="camera" size={24} color="black" onPress={openCamera} />
-        </View>
+        <TouchableOpacity style={styles.headerIcons} onPress={confirmLogout}>
+          <SimpleLineIcons name="logout" size={24} color="black" />
+        </TouchableOpacity>
         <Text style={styles.headerTitle}>Explore</Text>
-        <TouchableOpacity style={styles.headerIcons} onPress={() => { navigation.navigate('Notification') }}>
+        <TouchableOpacity style={styles.headerIcons} onPress={() => navigation.navigate('Notification')}>
           <Ionicons name="notifications" size={24} color="black" />
         </TouchableOpacity>
       </View>
+
       <ScrollView style={styles.storySection} horizontal={true} showsHorizontalScrollIndicator={false}>
         {sortedStory.map((elem, index) => (
           <View key={index} style={styles.story}>
@@ -109,11 +100,12 @@ const Home = ({ navigation }: any) => {
           </View>
         ))}
       </ScrollView>
+
       <PanGestureHandler onGestureEvent={handleGesture} activeOffsetX={[-10, 10]}>
         <FlatList
           style={styles.postList}
-          data={post} // Add more post data
-          renderItem={({ item }) => <Post post={item} />}
+          data={post}
+          renderItem={({ item }) => <Post data={item} />}
         />
       </PanGestureHandler>
     </SafeAreaView>
@@ -144,7 +136,7 @@ const styles = StyleSheet.create({
   },
   storySection: {
     paddingHorizontal: 15,
-    height: 130
+    height: 130,
   },
   story: {
     marginRight: 10,
@@ -169,6 +161,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   postList: {
-    paddingTop: 20
-  }
+    paddingTop: 20,
+  },
 });

@@ -1,79 +1,68 @@
 import { FlatList, RefreshControl, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import MessageItem from '@/components/MessageItem'
+import { UserState } from '@/hooks/contextHook'
+import useCrud from '@/hooks/useCrud'
 
 const Messages = ({ navigation }: any) => {
 
-  const [fakeData, setFakeData] = useState([
-    { id: 1, name: 'Ahmed' },
-    { id: 2, name: 'Ahmed' },
-    { id: 3, name: 'Ahmed' },
-    { id: 4, name: 'Ahmed' },
-    { id: 5, name: 'Ahmed' },
-    { id: 6, name: 'Ahmed' },
-    { id: 7, name: 'Ahmed' },
-    { id: 8, name: 'Ahmed' },
-    { id: 9, name: 'Ahmed' },
-    { id: 10, name: 'Ahmed' },
-    { id: 11, name: 'Ahmed' },
-  ]);
+  const {token} = UserState() ?? {}
+  const {get} = useCrud()
 
-
+  const [chats , setChats] = useState([])
   const [refreshing, setRefreshing] = useState(false);
 
-  // Simulate data refresh
-  const onRefresh = useCallback(() => {
+  // Function to fetch chats data
+  const fetchChats = async () => {
+    try {
+      const response = await get('api/v1/chat', token)
+      setChats(response)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  // Fetch data when the component is first mounted
+  useEffect(() => {
+    fetchChats()
+  }, [])
+
+  // Refresh function to be called when the user pulls down
+  const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    // Simulate a network request to fetch new data
-    setTimeout(() => {
-      setFakeData([
-        { id: 1, name: 'Ahmed' },
-        { id: 2, name: 'Ahmed' },
-        { id: 3, name: 'Ahmed' },
-        { id: 4, name: 'Ahmed' },
-        { id: 5, name: 'Ahmed' },
-        { id: 6, name: 'Ahmed' },
-        { id: 7, name: 'Ahmed' },
-        { id: 8, name: 'Ahmed' },
-        { id: 9, name: 'Ahmed' },
-        { id: 10, name: 'Ahmed' },
-        { id: 11, name: 'Ahmed' },
-        { id: 12, name: 'New User' }, // Add a new item to simulate data refresh
-      ]);
-      setRefreshing(false); // End refreshing
-    }, 2000); // Simulate a 2-second refresh
-  }, []);
+    try {
+      await fetchChats(); // Re-fetch the chats data
+    } catch (error) {
+      console.log(error)
+    } finally {
+      setRefreshing(false); // Stop the refreshing indicator
+    }
+  }, [token]);
 
   return (
-    <SafeAreaView
-      style={{ flex: 1, backgroundColor: 'white' }}
-    >
-      <View
-        style={styles.headSection}
-      >
+    <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
+      <View style={styles.headSection}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={24} color="black" />
         </TouchableOpacity>
-        <Text
-          style={styles.headText}
-        >Messages</Text>
+        <Text style={styles.headText}>Messages</Text>
         <TouchableOpacity>
           <Ionicons name="create-outline" size={30} color="black" />
         </TouchableOpacity>
       </View>
-      <View
-        style={styles.inputContainer}
-      >
+
+      <View style={styles.inputContainer}>
         <TextInput style={styles.inp} placeholder='Search' />
       </View>
+
       <FlatList
-        data={fakeData}
-        keyExtractor={(item) => item.id.toString()} // Ensure unique keys
-        renderItem={({ item }: any) => <MessageItem navigation={navigation} />} // Pass the item to MessageItem
+        data={chats}
+        keyExtractor={(item: any) => item._id.toString()} // Ensure unique keys
+        renderItem={({ item }: any) => <MessageItem chat={item} navigation={navigation} />} // Pass the item to MessageItem
         style={styles.messagesContainer}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} /> // Pull-to-refresh
         }
       />
     </SafeAreaView>

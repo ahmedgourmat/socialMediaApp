@@ -1,11 +1,15 @@
-import { Alert, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React from 'react'
-import me from '@/assets/images/ME.jpg'
+import { Alert, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React from 'react';
+import me from '@/assets/images/ME.jpg'; // Adjust this image for the other user's profile picture
 import Feather from '@expo/vector-icons/Feather';
 import * as ImagePicker from 'expo-image-picker';
+import { UserState } from '@/hooks/contextHook';
 
+const MessageItem = ({ navigation, chat }: any) => {
+    // Find the other user in the chat (not the current user)
+    const { user } = UserState() ?? {};
 
-const MessageItem = ({navigation} : any) => {
+    const otherUser = chat.users.find((item: any) => item.email !== user.email);
 
     const openCamera = async () => {
         // Request camera permissions
@@ -17,61 +21,82 @@ const MessageItem = ({navigation} : any) => {
 
         // Open the camera
         const result: any = await ImagePicker.launchCameraAsync({
-            allowsEditing: true,  // Let the user edit the picture before using it
-            aspect: [4, 3],       // Aspect ratio for the image
-            quality: 1,           // Image quality, ranging from 0 to 1
+            allowsEditing: true, // Let the user edit the picture before using it
+            aspect: [4, 3], // Aspect ratio for the image
+            quality: 1, // Image quality, ranging from 0 to 1
         });
 
         if (!result.canceled) {
-            // Handle the image result (result.uri contains the image URI)
             console.log(result.uri); // You can use this URI for uploading or displaying
         }
     };
 
     return (
-        <View
-            style={styles.messageContainer}
-        >
+        <View style={styles.messageContainer}>
             <TouchableOpacity
-                onPress={()=>{navigation.navigate('ChatScreen')}}
-                style={[styles.messageContainer , {paddingRight : 100}]}
+                onPress={() => {
+                    navigation.navigate('ChatScreen', {
+                        chatId: chat._id,
+                        chatName: otherUser ? otherUser.name : 'Unknown User',
+                    });
+                }}
+                style={styles.messageContent}
             >
                 <Image source={me} style={styles.img} />
                 <View>
-                    <Text
-                        style={styles.messageInfoName}
+                    {/* Display the other user's name */}
+                    <Text style={styles.messageInfoName}>{otherUser ? otherUser.name : 'Unknown User'}</Text>
 
-                    >Ahmed Gourmat</Text>
-                    <Text
-                        style={styles.messageInfoText}
-                    >Sent 3m ago</Text>
+                    {chat.latestMessage ?
+                        <View
+                            style={{flexDirection : 'row'}}
+                        >
+                            <Text style={styles.messageInfoText}>{chat.latestMessage.sender.email == user.email ? 'You' : chat.latestMessage.sender.name} : </Text>
+                            <Text style={styles.messageInfoText}>{chat.latestMessage.content}</Text>
+                        </View>
+                        :
+                        null
+                    }
+
+
+                    <Text style={styles.messageInfoText}>Sent 3m ago</Text>
                 </View>
             </TouchableOpacity>
-            <Feather name="camera" size={28} color="black" onPress={openCamera} />
-        </View>
-    )
-}
 
-export default MessageItem
+            {/* Camera icon on the right */}
+            <Feather name="camera" size={28} color="black" onPress={openCamera} style={styles.cameraIcon} />
+        </View>
+    );
+};
+
+export default MessageItem;
 
 const styles = StyleSheet.create({
     messageContainer: {
         flexDirection: 'row',
+        alignItems: 'center',
         marginVertical: 10,
-        alignItems: 'center'
+    },
+    messageContent: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        flex: 1, // This ensures the message content takes up available space before the icon
     },
     img: {
         width: 50,
         height: 50,
         borderRadius: 50,
-        marginRight: 20
+        marginRight: 20,
     },
     messageInfoName: {
         fontSize: 18,
         fontWeight: '600',
-        marginBottom: 3
+        marginBottom: 3,
     },
     messageInfoText: {
-        color: '#8E8E8E'
-    }
-})
+        color: '#8E8E8E',
+    },
+    cameraIcon: {
+        marginLeft: 'auto', // This pushes the icon to the right
+    },
+});

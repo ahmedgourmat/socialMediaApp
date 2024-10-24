@@ -1,39 +1,66 @@
-import { Image, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View, ScrollView, Alert } from 'react-native'
-import React, { useState } from 'react'
-import me from '@/assets/images/ME.jpg'
+import React, { useEffect, useState, useRef } from 'react';
+import { Image, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View, ScrollView, Alert } from 'react-native';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import * as ImagePicker from 'expo-image-picker';
+import useCrud from '@/hooks/useCrud';
+import { UserState } from '@/hooks/contextHook';
+import me from '@/assets/images/ME.jpg';
 
-const ChatScreen = ({ navigation }: any) => {
+const ChatScreen = ({ navigation, route }: any) => {
+
+    const { chatId, chatName } = route.params;
     const [message, setMessage] = useState('');
+    const [messagesData, setMessagesData] = useState<any>([]);
+    const { post, get } = useCrud();
+    const { token, user } = UserState() ?? {};
 
-    const handleSendMessage = () => {
-        // Logic for sending the message
-        console.log('Message sent:', message);
-        setMessage(''); // Clear input after sending
-    };
+    const scrollViewRef = useRef<ScrollView>(null); // Create a ref for ScrollView
 
     const openCamera = async () => {
-        // Request camera permissions
         const { status } = await ImagePicker.requestCameraPermissionsAsync();
         if (status !== 'granted') {
             Alert.alert('Permission needed', 'Camera access is required to take a picture.');
             return;
         }
-
-        // Open the camera
         const result: any = await ImagePicker.launchCameraAsync({
-            allowsEditing: true,  // Let the user edit the picture before using it
-            aspect: [4, 3],       // Aspect ratio for the image
-            quality: 1,           // Image quality, ranging from 0 to 1
+            allowsEditing: true,
+            aspect: [4, 3],
+            quality: 1,
         });
-
         if (!result.canceled) {
-            // Handle the image result (result.uri contains the image URI)
-            console.log(result.uri); // You can use this URI for uploading or displaying
+            console.log(result.uri);
         }
     };
+
+    const createMessage = async () => {
+        try {
+            const response = await post('api/v1/message', { chatId, content: message }, token);
+            setMessagesData((prevMessages: any) => [...prevMessages, response]); // Append the new message
+            setMessage('');
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    useEffect(() => {
+        const fetchingData = async () => {
+            try {
+                const response = await get(`api/v1/message/${chatId}`, token);
+                setMessagesData(response);
+            } catch (error) {
+                console.log(error);
+            }
+        };
+        fetchingData();
+    }, []);
+
+    // Scroll to the bottom whenever messagesData changes
+    useEffect(() => {
+        if (scrollViewRef.current) {
+            scrollViewRef.current.scrollToEnd({ animated: true });
+        }
+    }, [messagesData]);
 
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: '#E6EEFA' }}>
@@ -41,99 +68,25 @@ const ChatScreen = ({ navigation }: any) => {
             <View style={styles.header}>
                 <Image source={me} style={styles.img} />
                 <View>
-                    <Text style={{ fontSize: 19, fontWeight: '600' }}>Benjamin Moore</Text>
+                    <Text style={{ fontSize: 19, fontWeight: '600' }}>{chatName}</Text>
                     <Text style={{ color: '#8E8E8E' }}>Last seen 11:44 AM</Text>
                 </View>
                 <AntDesign onPress={() => { navigation.goBack() }} style={{ marginLeft: 'auto' }} name="closecircle" size={35} color="#5790DF" />
             </View>
 
             {/* Chat Messages */}
-            <ScrollView style={styles.chatContainer}>
-                {/* Sender's message */}
-                <View style={styles.senderMessage}>
-                    <Text style={styles.messageText}>Hi Catherine! How are you?</Text>
-                </View>
-
-                {/* Receiver's message */}
-                <View style={styles.receiverMessage}>
-                    <Text style={styles.messageTextReceiver}>I'm good and you?</Text>
-                </View>
-
-                {/* Sender's message */}
-                <View style={styles.senderMessage}>
-                    <Text style={styles.messageText}>I'm doing good. What are you doing?</Text>
-                </View>
-
-                {/* Receiver's message */}
-                <View style={styles.receiverMessage}>
-                    <Text style={styles.messageTextReceiver}>I'm working on my app design.</Text>
-                </View>
-
-                {/* Sender's message */}
-                <View style={styles.senderMessage}>
-                    <Text style={styles.messageText}>Let's get lunch! How about sushi?</Text>
-                </View>
-
-                {/* Receiver's message */}
-                <View style={styles.receiverMessage}>
-                    <Text style={styles.messageTextReceiver}>That sounds great!</Text>
-                </View>
-                <View style={styles.senderMessage}>
-                    <Text style={styles.messageText}>Hi Catherine! How are you?</Text>
-                </View>
-
-                {/* Receiver's message */}
-                <View style={styles.receiverMessage}>
-                    <Text style={styles.messageTextReceiver}>I'm good and you?</Text>
-                </View>
-
-                {/* Sender's message */}
-                <View style={styles.senderMessage}>
-                    <Text style={styles.messageText}>I'm doing good. What are you doing?</Text>
-                </View>
-
-                {/* Receiver's message */}
-                <View style={styles.receiverMessage}>
-                    <Text style={styles.messageTextReceiver}>I'm working on my app design.</Text>
-                </View>
-
-                {/* Sender's message */}
-                <View style={styles.senderMessage}>
-                    <Text style={styles.messageText}>Let's get lunch! How about sushi?</Text>
-                </View>
-
-                {/* Receiver's message */}
-                <View style={styles.receiverMessage}>
-                    <Text style={styles.messageTextReceiver}>That sounds great!</Text>
-                </View>
-                <View style={styles.senderMessage}>
-                    <Text style={styles.messageText}>Hi Catherine! How are you?</Text>
-                </View>
-
-                {/* Receiver's message */}
-                <View style={styles.receiverMessage}>
-                    <Text style={styles.messageTextReceiver}>I'm good and you?</Text>
-                </View>
-
-                {/* Sender's message */}
-                <View style={styles.senderMessage}>
-                    <Text style={styles.messageText}>I'm doing good. What are you doing?</Text>
-                </View>
-
-                {/* Receiver's message */}
-                <View style={styles.receiverMessage}>
-                    <Text style={styles.messageTextReceiver}>I'm working on my app design.</Text>
-                </View>
-
-                {/* Sender's message */}
-                <View style={styles.senderMessage}>
-                    <Text style={styles.messageText}>Let's get lunch! How about sushi?</Text>
-                </View>
-
-                {/* Receiver's message */}
-                <View style={styles.receiverMessage}>
-                    <Text style={styles.messageTextReceiver}>That sounds great!</Text>
-                </View>
+            <ScrollView 
+                style={styles.chatContainer} 
+                ref={scrollViewRef} // Attach ref to ScrollView
+                onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })} // Auto scroll when content size changes
+            >
+                {
+                    messagesData.map((elem: any, index: number) => (
+                        <View key={index} style={elem.sender._id !== user._id ? styles.senderMessage : styles.receiverMessage}>
+                            <Text style={styles.messageText}>{elem.content}</Text>
+                        </View>
+                    ))
+                }
             </ScrollView>
 
             {/* Input Area */}
@@ -145,15 +98,15 @@ const ChatScreen = ({ navigation }: any) => {
                     onChangeText={setMessage}
                     placeholder="Type a message..."
                 />
-                <TouchableOpacity onPress={handleSendMessage}>
+                <TouchableOpacity onPress={createMessage}>
                     <AntDesign name="arrowright" size={30} color="#5790DF" />
                 </TouchableOpacity>
             </View>
         </SafeAreaView>
-    )
-}
+    );
+};
 
-export default ChatScreen
+export default ChatScreen;
 
 const styles = StyleSheet.create({
     img: {
@@ -194,10 +147,6 @@ const styles = StyleSheet.create({
     messageText: {
         fontSize: 16,
         color: '#000',
-    },
-    messageTextReceiver: {
-        fontSize: 16,
-        color: '#FFF',
     },
     inputContainer: {
         flexDirection: 'row',

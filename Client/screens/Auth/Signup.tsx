@@ -17,7 +17,7 @@ const Signup = ({ navigation }: any) => {
     const createUser = async () => {
         try {
             console.log('here')
-            const res = await axios.post('http://192.168.21.46:8080/api/v1/user/signup', values); // Fixed typo here
+            const res = await axios.post('http://192.168.68.46:8080/api/v1/user/signup', values); // Fixed typo here
             console.log('here')
             if (res.status >= 200 && res.status < 300) {
                 console.log(res.data)
