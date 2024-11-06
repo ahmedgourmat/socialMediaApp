@@ -18,7 +18,6 @@ const createPost = async (req, res) => {
 
         res.status(201).json({ message: 'Post has been created successfully' });
     } catch (error) {
-        console.error(error); // Log the error for debugging
         res.status(500).json({ error: error.message });
     }
 };

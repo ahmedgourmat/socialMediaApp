@@ -17,7 +17,7 @@ const Login = ({navigation} : any) => {
   const login = async () => {
     try {
       console.log('here')
-      const res = await axios.post('http://192.168.68.46:8080/api/v1/user/login', values); 
+      const res = await axios.post('http://192.168.136.46:8080/api/v1/user/login', values); 
       console.log('here')
       if (res.status >= 200 && res.status < 300) {
         console.log(res.data)

@@ -90,17 +90,6 @@ const Home = ({ navigation }: any) => {
         </TouchableOpacity>
       </View>
 
-      <ScrollView style={styles.storySection} horizontal={true} showsHorizontalScrollIndicator={false}>
-        {sortedStory.map((elem, index) => (
-          <View key={index} style={styles.story}>
-            <View style={[styles.storyImageContainer, { borderColor: elem.seen ? '#E0E0E0' : '#5790DF' }]}>
-              <Image source={elem.img} style={styles.storyImage} />
-            </View>
-            <Text style={styles.storyName}>{elem.name}</Text>
-          </View>
-        ))}
-      </ScrollView>
-
       <PanGestureHandler onGestureEvent={handleGesture} activeOffsetX={[-10, 10]}>
         <FlatList
           style={styles.postList}

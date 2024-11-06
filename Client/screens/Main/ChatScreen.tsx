@@ -6,6 +6,9 @@ import * as ImagePicker from 'expo-image-picker';
 import useCrud from '@/hooks/useCrud';
 import { UserState } from '@/hooks/contextHook';
 import me from '@/assets/images/ME.jpg';
+import {io} from 'socket.io-client'
+
+const socket = io.connect('http://192.168.136.46:8080')
 
 const ChatScreen = ({ navigation, route }: any) => {
 
@@ -14,8 +17,32 @@ const ChatScreen = ({ navigation, route }: any) => {
     const [messagesData, setMessagesData] = useState<any>([]);
     const { post, get } = useCrud();
     const { token, user } = UserState() ?? {};
+    const [typing , setTyping] = useState(false)
 
     const scrollViewRef = useRef<ScrollView>(null); // Create a ref for ScrollView
+
+
+    useEffect(() => {
+
+        socket.emit('joinRoom' , chatId)
+
+    }, [socket]);
+
+    useEffect(()=>{
+        console.log('here')
+        socket.on('messageRecieved',(data : any)=>{
+            console.log('here is data',data)
+            setMessagesData([...messagesData , data])
+        })
+        socket.on('typing',(bool : any)=>{
+            setTyping(bool)
+            console.log(bool , 'typing')
+        })
+        socket.on('stop typing',(bool : any)=>{
+            setTyping(bool)
+            console.log(bool , 'typing')
+        })
+    })
 
     const openCamera = async () => {
         const { status } = await ImagePicker.requestCameraPermissionsAsync();
@@ -36,6 +63,7 @@ const ChatScreen = ({ navigation, route }: any) => {
     const createMessage = async () => {
         try {
             const response = await post('api/v1/message', { chatId, content: message }, token);
+            socket.emit('sendMessage' , response)
             setMessagesData((prevMessages: any) => [...prevMessages, response]); // Append the new message
             setMessage('');
         } catch (error) {
@@ -55,6 +83,15 @@ const ChatScreen = ({ navigation, route }: any) => {
         fetchingData();
     }, []);
 
+
+    const changeHandler = (text : any)=>{
+        setMessage(text)
+        if(text !== ''){
+            socket.emit('typing' , chatId, user)
+        }else{
+            socket.emit('stop typing' , chatId, user)
+        }
+    }
     // Scroll to the bottom whenever messagesData changes
     useEffect(() => {
         if (scrollViewRef.current) {
@@ -75,8 +112,8 @@ const ChatScreen = ({ navigation, route }: any) => {
             </View>
 
             {/* Chat Messages */}
-            <ScrollView 
-                style={styles.chatContainer} 
+            <ScrollView
+                style={styles.chatContainer}
                 ref={scrollViewRef} // Attach ref to ScrollView
                 onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })} // Auto scroll when content size changes
             >
@@ -95,7 +132,7 @@ const ChatScreen = ({ navigation, route }: any) => {
                 <TextInput
                     style={styles.textInput}
                     value={message}
-                    onChangeText={setMessage}
+                    onChangeText={changeHandler}
                     placeholder="Type a message..."
                 />
                 <TouchableOpacity onPress={createMessage}>

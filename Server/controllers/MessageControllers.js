@@ -25,13 +25,11 @@ const createMessage = async (req, res) => {
                 },
             });
 
-        console.log(populatedMessage);  // Debugging purpose to log the message
 
         // Send the populated message back as the response
         res.status(201).json(populatedMessage);
 
     } catch (error) {
-        console.log(error);
         res.status(500).json({ error: error.message });
     }
 }
@@ -39,13 +37,6 @@ const createMessage = async (req, res) => {
 
 const getMessages = async (req, res) => {
     const { chatId } = req.params;
-    console.log(req.params)
-    console.log('here is the chatId', chatId)
-
-    // Validate chatId
-    if (!chatId || !mongoose.Types.ObjectId.isValid(chatId)) {
-        return res.status(400).json({ error: 'Invalid chatId' });
-    }
 
     try {
         const messages = await Message.find({ chat: chatId })
@@ -60,7 +51,6 @@ const getMessages = async (req, res) => {
 
         res.status(200).json(messages);
     } catch (error) {
-        console.error(error);
         res.status(500).json({ error: error.message });
     }
 };

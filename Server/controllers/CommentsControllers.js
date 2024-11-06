@@ -1,6 +1,8 @@
 const Comment = require('../models/Comments');
 const Post = require('../models/Post');
 
+
+
 const createComment = async (req, res) => {
     const { postId, text } = req.body;
     const userId = req.user;  // Get the current user's ID
@@ -8,7 +10,6 @@ const createComment = async (req, res) => {
     try {
         // Check if the post exists
 
-        console.log(text)
 
         const post = await Post.findById(postId);
         if (!post) {
@@ -29,7 +30,6 @@ const createComment = async (req, res) => {
 
         res.status(201).json({ message: 'Comment created successfully', comment });
     } catch (error) {
-        console.log(error)
         res.status(500).json({ error: error.message });
     }
 };
@@ -39,15 +39,12 @@ const getComments = async (req, res) => {
 
     try {
         // Get comments for the specific post, populating the user information
-        console.log('here')
         const comments = await Comment.find({ postC: postId })
             .populate('userC', 'name')  // Populate the user details
             .sort({ createdAt: -1 });  // Sort by latest first
 
         res.status(200).json(comments);
     } catch (error) {
-        console.log(error)
-
         res.status(500).json({ error: error.message });
     }
 };

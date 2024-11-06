@@ -1,6 +1,8 @@
 const Chat = require('../models/Chat')
 const User = require('../models/User')
 
+
+
 const createChat = async (req, res) => {
     const sender = req.user;
     const { recieverId } = req.body;
@@ -17,7 +19,6 @@ const createChat = async (req, res) => {
 
         res.status(201).json({ message: 'Chat created successfully', chat });
     } catch (error) {
-        console.log('chat Error', error)
         res.status(500).json({ error: error.message });
     }
 }
