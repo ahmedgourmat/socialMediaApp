@@ -2,6 +2,7 @@ const User = require("../models/User")
 const createToken = require("../utils/createToken")
 const hashingFun = require("../utils/hashThePassowrd")
 const bcrypt = require('bcrypt')
+const cloudinary = require('../config/Cloudinary')
 
 const signup = async (req, res) => {
 
@@ -9,7 +10,9 @@ const signup = async (req, res) => {
         name,
         email,
         password,
-        confirmPassword
+        confirmPassword,
+        img,
+        bio
     } = req.body
 
     try {
@@ -29,11 +32,14 @@ const signup = async (req, res) => {
         console.log('here')
 
         const hashPassword = await hashingFun(password)
+        const result = await cloudinary.uploader.upload(img);
 
         let user = await User.create({
             name,
             email,
             password: hashPassword,
+            bio,
+            img : result.secure_url
         })
         console.log('here')
 
@@ -45,6 +51,7 @@ const signup = async (req, res) => {
 
         res.status(201).json({ user, token })
     } catch (error) {
+        console.log(error)
         res.status(500).json({ error: error.message })
     }
 
@@ -120,7 +127,7 @@ const followUser = async (req, res) => {
 
         res.status(200).json({ message: 'Followed successfully', user, otherUser });
     } catch (error) {
-        console.log('Follow Error',error)
+        console.log('Follow Error', error)
         res.status(500).json({ error: error.message });
     }
 };
@@ -164,4 +171,4 @@ const unfollowUser = async (req, res) => {
 
 
 
-module.exports = { signup, login, followUser, unfollowUser}
+module.exports = { signup, login, followUser, unfollowUser }

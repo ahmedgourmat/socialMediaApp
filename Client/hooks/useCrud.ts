@@ -3,7 +3,6 @@ import axios from "axios"
 const useCrud = ()=>{
     const post = async(route : string , values : any , token? : any)=>{
 
-        console.log(token)
 
 
         const response = await axios.post(`http://192.168.136.46:8080/${route}`,values,{

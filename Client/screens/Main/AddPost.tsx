@@ -1,10 +1,8 @@
 import { StyleSheet, Text, View, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import React, { useState } from 'react';
 import * as ImagePicker from 'expo-image-picker';
-import axios from 'axios';
 import useCrud from '@/hooks/useCrud';
 import { UserState } from '@/hooks/contextHook';
-import ImageResizer from 'react-native-image-resizer';
 
 const AddPost = () => {
   const [img, setImg] = useState('');
@@ -55,7 +53,7 @@ const AddPost = () => {
     }
   };
 
-  const uploadImage = async (imageUri) => {
+  const uploadImage = async (imageUri : any) => {
     setLoading(true);  // Start loading
 
     const base64Img = await toBase64(imageUri);
@@ -72,7 +70,7 @@ const AddPost = () => {
     }
   };
 
-  const toBase64 = async (uri) => {
+  const toBase64 = async (uri : any) => {
     const response = await fetch(uri);
     const blob = await response.blob();
     return new Promise((resolve) => {

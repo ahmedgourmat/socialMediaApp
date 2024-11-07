@@ -5,12 +5,12 @@ const validateRequest = require('../middleware/joiValidation');
 const authMiddleware = require('../middleware/authMiddleware');
 
 
-const signupSchema = Joi.object().keys({
-    name: Joi.string().min(3).required(),
-    email: Joi.string().email().required(),
-    password: Joi.string().min(8).required(),
-    confirmPassword: Joi.string().min(8).required()
-});
+// const signupSchema = Joi.object().keys({
+//     name: Joi.string().min(3).required(),
+//     email: Joi.string().email().required(),
+//     password: Joi.string().min(8).required(),
+//     confirmPassword: Joi.string().min(8).required()
+// });
 
 
 const loginSchema = Joi.object().keys({
@@ -19,7 +19,7 @@ const loginSchema = Joi.object().keys({
 });
 
 
-router.route('/signup').post(validateRequest(signupSchema),signup)
+router.route('/signup').post(signup)
 router.route('/login').post(validateRequest(loginSchema),login)
 router.route('/:otherUserId').patch(authMiddleware , followUser)
 

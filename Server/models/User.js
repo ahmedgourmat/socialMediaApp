@@ -17,7 +17,10 @@ const UserSchema = new mongoose.Schema({
         type : String , 
         default : ''
     },
-    img : String ,
+    img : {
+        type : String ,
+        default : "https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg"
+    } ,
     followers : [
         {
             type : mongoose.Schema.Types.ObjectId,

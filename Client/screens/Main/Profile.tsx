@@ -101,7 +101,7 @@ const Profile = ({ navigation }: any) => {
           <View>
             <View style={styles.firstInfoProfile}>
               <View style={[styles.followersInfo, { marginRight: 20 }]}>
-                <Text style={{ fontWeight: '700', fontSize: 20, marginBottom: 4 }}>1k</Text>
+                <Text style={{ fontWeight: '700', fontSize: 20, marginBottom: 4 }}>{user.followers.length}</Text>
                 <Text style={{ fontWeight: '500', fontSize: 14 }}>Followers</Text>
               </View>
 
@@ -112,19 +112,19 @@ const Profile = ({ navigation }: any) => {
                   { transform: [{ translateY: imageTranslateY }] },
                 ]}
               >
-                <Image source={Me} style={styles.profileImg} />
+                <Image source={user.img} style={styles.profileImg} />
                 <Animated.View style={{ marginTop: 50 }}>
                   <Text style={{ fontSize: 18, fontWeight: '700' }}>@{user.name}</Text>
                 </Animated.View>
               </Animated.View>
               <View style={[styles.followersInfo, { marginLeft: 20 }]}>
-                <Text style={{ fontWeight: '700', fontSize: 20, marginBottom: 4 }}>342</Text>
+                <Text style={{ fontWeight: '700', fontSize: 20, marginBottom: 4 }}>{user.following.length}</Text>
                 <Text style={{ fontWeight: '500', fontSize: 14 }}>Following</Text>
               </View>
             </View>
             <View style={styles.bio}>
               <Text style={styles.bioText}>
-                My name is Ahmed. I like playing football in the rain and traveling all around the world.
+               {user.bio}
               </Text>
               <View style={styles.btnContainer}>
                 <TouchableOpacity style={[styles.btn, { backgroundColor: '#5790DF' }]}>

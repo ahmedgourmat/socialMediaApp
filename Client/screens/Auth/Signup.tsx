@@ -1,139 +1,20 @@
-import { SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
-import React, { useState } from 'react';
-import CheckBox from 'react-native-check-box';
-import Ionicons from '@expo/vector-icons/Ionicons';
-import axios from 'axios';
-import * as SecureStore from 'expo-secure-store'
+import { StyleSheet } from 'react-native';
+import React from 'react';
+import { createStackNavigator } from '@react-navigation/stack';
+import StepOne from './signupScreens/StepOne';
+import StepTwo from './signupScreens/StepTwo';
+import StepThree from './signupScreens/StepThree';
 
-const Signup = ({ navigation }: any) => {
-    const [isSelected, setSelection] = useState(false);
-    const [values, setValues] = useState({
-        name: '',
-        email: '',
-        password: '',
-        confirmPassword: ''
-    });
+const Signup = () => {
 
-    const createUser = async () => {
-        try {
-            console.log('here')
-            const res = await axios.post('http://192.168.136.46:8080/api/v1/user/signup', values); // Fixed typo here
-            console.log('here')
-            if (res.status >= 200 && res.status < 300) {
-                console.log(res.data)
-                await SecureStore.setItemAsync('token', res.data.token)
-                await SecureStore.setItemAsync('user',  JSON.stringify(res.data.user))
-                console.log('Signup successfully');
-                setValues({
-                    name: '',
-                    email: '',
-                    password: '',
-                    confirmPassword: ''
-                })
-                navigation.navigate('Main')
-            }
-        } catch (error: any) {
-            console.log('Error signing up:', error.response ? error.response.data : error.message);
-        }
-    };
-
-    const changeHandler = (name: string, value: string) => {
-        setValues({ ...values, [name]: value }); // Correctly update state without e.target
-    };
+    const Stack = createStackNavigator();
 
     return (
-        <KeyboardAvoidingView
-            style={{ flex: 1 }}
-            behavior={Platform.OS === 'ios' ? 'padding' : undefined} // Adjust padding for iOS
-            keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20} // For Android, set a little offset
-        >
-            <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false}>
-                <View style={{ flex: 1, paddingHorizontal: 25 }}>
-                    <SafeAreaView style={{ flex: 1 }}>
-                        {/* Back Button in the Top Left */}
-                        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-                            <Ionicons name="arrow-back" size={24} color="black" />
-                        </TouchableOpacity>
-
-                        <View style={styles.container}>
-                            <Text style={styles.header}>Signup</Text>
-                            <TouchableOpacity style={styles.googlebtn}>
-                                <Ionicons name="logo-google" size={24} color="black" />
-                                <Text style={styles.textbtn}>Sign Up with Google</Text>
-                            </TouchableOpacity>
-                            <Text style={styles.text}>or signup with</Text>
-                        </View>
-
-                        <View style={styles.inpContainer}>
-                            <View style={{ width: '100%' }}>
-                                <Text style={styles.inpText}>Full name</Text>
-                                <TextInput
-                                    placeholder='Full name'
-                                    style={styles.inp}
-                                    value={values.name}
-                                    onChangeText={(text) => changeHandler('name', text)} // Correctly using onChangeText
-                                />
-                            </View>
-                            <View style={{ width: '100%', marginTop: 10 }}>
-                                <Text style={styles.inpText}>Email address</Text>
-                                <TextInput
-                                    placeholder='Email'
-                                    keyboardType='email-address'
-                                    style={styles.inp}
-                                    value={values.email}
-                                    onChangeText={(text) => changeHandler('email', text)} // Correctly using onChangeText
-                                />
-                            </View>
-                            <View style={{ width: '100%', marginTop: 10 }}>
-                                <Text style={styles.inpText}>Password</Text>
-                                <TextInput
-                                    placeholder='Password'
-                                    style={styles.inp}
-                                    value={values.password}
-                                    secureTextEntry={true}
-                                    onChangeText={(text) => changeHandler('password', text)} // Correctly using onChangeText
-                                />
-                            </View>
-                            <View style={{ width: '100%', marginTop: 10 }}>
-                                <Text style={styles.inpText}>Confirm password</Text>
-                                <TextInput
-                                    placeholder='Confirm password'
-                                    secureTextEntry={true}
-                                    style={styles.inp}
-                                    value={values.confirmPassword}
-                                    onChangeText={(text) => changeHandler('confirmPassword', text)} // Correctly using onChangeText
-                                />
-                            </View>
-                            <View>
-                                <CheckBox
-                                    isChecked={isSelected}
-                                    onClick={() => setSelection(!isSelected)}
-                                    rightText='By creating an account, I accept Hiring terms of Use and Privacy Policy'
-                                    rightTextStyle={{ color: '#6C6F72' }}
-                                    style={styles.checkbox}
-                                    checkedCheckBoxColor='#59CDBE'
-                                />
-                            </View>
-                            <TouchableOpacity
-                                style={[styles.googlebtn, styles.loginbtn]}
-                                onPress={createUser} // Call createUser on press
-                            >
-                                <Text style={[styles.textbtn, { color: 'white', fontWeight: '500' }]}>Sign up</Text>
-                            </TouchableOpacity>
-                            <Text style={{ marginTop: 30, textAlign: 'center' }}>
-                                Have an account?{' '}
-                                <Text
-                                    onPress={() => { navigation.navigate('Login') }}
-                                    style={{ color: '#0000EE' }} // Navigate to Signin screen
-                                >
-                                    Sign in here
-                                </Text>
-                            </Text>
-                        </View>
-                    </SafeAreaView>
-                </View>
-            </ScrollView>
-        </KeyboardAvoidingView>
+        <Stack.Navigator initialRouteName="StepOne" screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="StepOne" component={StepOne} />
+            <Stack.Screen name="StepTwo" component={StepTwo} />
+            <Stack.Screen name="StepThree" component={StepThree} />
+        </Stack.Navigator>
     );
 };
 
