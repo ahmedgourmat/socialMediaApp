@@ -5,7 +5,7 @@ const useCrud = ()=>{
 
 
 
-        const response = await axios.post(`http://192.168.136.46:8080/${route}`,values,{
+        const response = await axios.post(`http://192.168.145.46:8080/${route}`,values,{
             headers : {
                 Authorization : `Barear ${token}`
             }
@@ -20,10 +20,8 @@ const useCrud = ()=>{
 
 
     const get = async (route : string, token? : any)=>{
-        
-        console.log('here')
 
-        const response = await axios.get(`http://192.168.136.46:8080/${route}`,{
+        const response = await axios.get(`http://192.168.145.46:8080/${route}`,{
             headers : {
                 Authorization : `Barear ${token}`
             }
@@ -37,7 +35,7 @@ const useCrud = ()=>{
     }
 
     const update = async(route : string , values? : any , token? : any)=>{
-        const response = await axios.patch(`http://192.168.136.46:8080/${route}`,values,{
+        const response = await axios.patch(`http://192.168.145.46:8080/${route}`,values,{
             headers : {
                 Authorization : `Barear ${token}`
             }
@@ -51,9 +49,7 @@ const useCrud = ()=>{
     }
 
     const remove = async(route : string , token? : any)=>{
-
-        console.log(token)
-        const response = await axios.delete(`http://192.168.136.46:8080/${route}`,{
+        const response = await axios.delete(`http://192.168.145.46:8080/${route}`,{
             headers : {
                 Authorization : `Barear ${token}`
             }

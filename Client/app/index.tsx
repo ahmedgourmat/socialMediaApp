@@ -17,7 +17,6 @@ function App() {
     const checkingUserInfo = async()=>{
       const tempUser : any = await SecureStore.getItemAsync('user')
       setUser(tempUser)
-      console.log(tempUser)
     }
 
     checkingUserInfo()

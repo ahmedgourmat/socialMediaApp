@@ -8,7 +8,7 @@ import { UserState } from '@/hooks/contextHook';
 import me from '@/assets/images/ME.jpg';
 import {io} from 'socket.io-client'
 
-const socket = io.connect('http://192.168.136.46:8080')
+const socket = io.connect('http://192.168.145.46:8080')
 
 const ChatScreen = ({ navigation, route }: any) => {
 
@@ -29,18 +29,14 @@ const ChatScreen = ({ navigation, route }: any) => {
     }, [socket]);
 
     useEffect(()=>{
-        console.log('here')
         socket.on('messageRecieved',(data : any)=>{
-            console.log('here is data',data)
             setMessagesData([...messagesData , data])
         })
         socket.on('typing',(bool : any)=>{
             setTyping(bool)
-            console.log(bool , 'typing')
         })
         socket.on('stop typing',(bool : any)=>{
             setTyping(bool)
-            console.log(bool , 'typing')
         })
     })
 

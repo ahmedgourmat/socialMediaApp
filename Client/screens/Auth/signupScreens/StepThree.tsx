@@ -3,9 +3,11 @@ import axios from 'axios';
 import React, { useState } from 'react';
 import { SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import * as SecureStore from 'expo-secure-store'
+import { UserState } from '@/hooks/contextHook';
 
 const StepThree = ({ navigation, route }: any) => {
     const { values } = route.params;
+    const {setUser} = UserState()
     const [bio, setBio] = useState('');
     const { post } = useCrud()
 
@@ -15,6 +17,7 @@ const StepThree = ({ navigation, route }: any) => {
             const response = await post('api/v1/user/signup', userData);
             await SecureStore.setItemAsync('token', response.token)
             await SecureStore.setItemAsync('user', JSON.stringify(response.user))
+            setUser(response.user)
             console.log('Signup successfully');
             navigation.navigate('Main')
         } catch (error) {

@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 import Me from '@/assets/images/ME.jpg';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
-import FontAwesome1 from '@expo/vector-icons/FontAwesome5';
 import Feather from '@expo/vector-icons/Feather';
 import CommentsModal from '@/components/CommentsModal';
 import useCrud from '@/hooks/useCrud';
@@ -12,12 +11,15 @@ import { useNavigation } from '@react-navigation/native';
 
 const Post = ({ data }: any) => {
   const [modalVisible, setModalVisible] = useState(false);
-  const { get, post, remove } = useCrud(); // Added del for DELETE requests
+  const { get, post, remove , update } = useCrud(); // Added del for DELETE requests
   const { token, user } = UserState() ?? {};
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [isSaved, setIsSaved] = useState(false); // State to track if the post is saved
+  const [isSaved, setIsSaved] = useState(false); // Track if the post is saved
+  const [likes, setLikes] = useState(data.likes || 0); // Track the number of likes
+  const [isLiked, setIsLiked] = useState(data.isLikedByUser || false); // Track if the user has liked the post
   const navigation = useNavigation<any>();
+  console.log
 
   // Fetch comments
   const fetchingData = async () => {
@@ -62,12 +64,29 @@ const Post = ({ data }: any) => {
         // Unsave the post
         const response = await remove(`api/v1/saves/${data._id}`, token); // Delete request to unsave
         setIsSaved(false);
-        console.log('Post unsaved', response);
       } else {
         // Save the post
         const response = await post('api/v1/saves', { postId: data._id }, token);
         setIsSaved(true);
-        console.log('Post saved', response);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  // Toggle like/unlike post
+  const toggleLike = async () => {
+    try {
+      if (isLiked) {
+        // Unlike the post
+        await remove(`api/v1/likes/${data._id}`, token);
+        setLikes((prev : any) => prev - 1);
+        setIsLiked(false);
+      } else {
+        // Like the post
+        await update(`api/v1/post/${data._id}`,{}, token);
+        setLikes((prev : any) => prev + 1);
+        setIsLiked(true);
       }
     } catch (error) {
       console.log(error);
@@ -86,21 +105,28 @@ const Post = ({ data }: any) => {
       <Image src={data.img} style={styles.postImage} />
       <View style={styles.postActivity}>
         <View style={styles.activitySection}>
-          <FontAwesome6 name="heart" size={24} color="black" />
-          <Text style={{ fontSize: 16, fontWeight: '600', marginLeft: 5, marginRight: 15 }}>3K</Text>
-          <FontAwesome5 name="comment" size={24} color="black" onPress={() => { setModalVisible(true); fetchingData(); }} />
-          <Text style={{ fontSize: 16, fontWeight: '600', marginHorizontal: 5 }}>102</Text>
+          <FontAwesome6
+            name="heart"
+            size={24}
+            color={isLiked ? 'red' : 'black'}
+            onPress={toggleLike} // Toggle like on press
+          />
+          <Text style={{ fontSize: 16, fontWeight: '600', marginLeft: 5, marginRight: 15 }}>{likes}</Text>
+          <FontAwesome5
+            name="comment"
+            size={24}
+            color="black"
+            onPress={() => { setModalVisible(true); fetchingData(); }}
+          />
+          <Text style={{ fontSize: 16, fontWeight: '600', marginHorizontal: 5 }}>{comments.length}</Text>
         </View>
         <View style={styles.activitySection}>
-          <FontAwesome1 name="paper-plane" size={24} color="black" />
-          <Text style={{ fontSize: 16, fontWeight: '600', marginLeft: 5, marginRight: 15 }}>600</Text>
           <Feather
             name="bookmark"
             size={26}
-            color={isSaved ? 'blue' : 'black'} // Change color based on save state
-            onPress={toggleSavePost} // Call function on press
+            color={isSaved ? 'blue' : 'black'}
+            onPress={toggleSavePost}
           />
-          <Text style={{ fontSize: 16, fontWeight: '600', marginHorizontal: 5 }}>67</Text>
         </View>
       </View>
       <CommentsModal modalVisible={modalVisible} setModalVisible={setModalVisible} comments={comments} postId={data._id} loading={loading} />

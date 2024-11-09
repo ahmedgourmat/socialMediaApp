@@ -31,6 +31,21 @@ const MessageItem = ({ navigation, chat }: any) => {
         }
     };
 
+    const getRelativeTime = (createdAt: string) => {
+        const now = new Date();
+        const messageTime = new Date(createdAt);
+        const diffInMs = now.getTime() - messageTime.getTime();
+        
+        const minutes = Math.floor(diffInMs / (1000 * 60));
+        if (minutes < 60) return `${minutes} minutes ago`;
+
+        const hours = Math.floor(minutes / 60);
+        if (hours < 24) return `${hours} hours ago`;
+
+        const days = Math.floor(hours / 24);
+        return `${days} days ago`;
+    };
+
     return (
         <View style={styles.messageContainer}>
             <TouchableOpacity
@@ -47,19 +62,18 @@ const MessageItem = ({ navigation, chat }: any) => {
                     {/* Display the other user's name */}
                     <Text style={styles.messageInfoName}>{otherUser ? otherUser.name : 'Unknown User'}</Text>
 
-                    {chat.latestMessage ?
-                        <View
-                            style={{flexDirection : 'row'}}
-                        >
-                            <Text style={styles.messageInfoText}>{chat.latestMessage.sender.email == user.email ? 'You' : chat.latestMessage.sender.name} : </Text>
+                    {chat.latestMessage ? (
+                        <View style={{ flexDirection: 'row' }}>
+                            <Text style={styles.messageInfoText}>
+                                {chat.latestMessage.sender.email === user.email ? 'You' : chat.latestMessage.sender.name} : 
+                            </Text>
                             <Text style={styles.messageInfoText}>{chat.latestMessage.content}</Text>
                         </View>
-                        :
-                        null
-                    }
+                    ) : null}
 
-
-                    <Text style={styles.messageInfoText}>Sent 3m ago</Text>
+                    <Text style={styles.messageInfoText}>
+                        {chat.latestMessage ? getRelativeTime(chat.latestMessage.createdAt) : ''}
+                    </Text>
                 </View>
             </TouchableOpacity>
 

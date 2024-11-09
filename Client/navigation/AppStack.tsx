@@ -30,7 +30,7 @@ const TabNavigator = () => (
       tabBarIcon: ({ color }) => {
         let iconName;
         switch (route.name) {
-          case 'Home':
+          case 'HomeMain':
             iconName = <Feather name="home" size={28} color={color} />;
             break;
           case 'Messages':
@@ -50,7 +50,7 @@ const TabNavigator = () => (
     })}
   >
     <Tab.Screen
-      name="Home"
+      name="HomeMain"
       component={Home}
       options={{ title: '' }}
     />
@@ -58,7 +58,6 @@ const TabNavigator = () => (
       name="Messages"
       component={Messages}
       options={{
-        tabBarBadge: '+99',
         title: '',
       }}
     />
@@ -78,7 +77,7 @@ const TabNavigator = () => (
 const AppNavigator = () => (
   <Stack.Navigator>
     <Stack.Screen
-      name="Main"
+      name="Home"
       component={TabNavigator}
       options={{ headerShown: false }}
     />

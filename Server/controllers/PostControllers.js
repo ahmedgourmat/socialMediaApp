@@ -49,6 +49,7 @@ const likePost = async (req, res) => {
     const { postId } = req.params;  // Get postId from the request parameters
 
     try {
+        console.log('here')
         // Find the post by its ID and increment the 'likes' field by 1
         const post = await Post.findByIdAndUpdate(
             postId,

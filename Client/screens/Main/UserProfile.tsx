@@ -23,16 +23,14 @@ const UserProfile = ({ navigation, route }: any) => {
 
     const { otherUser } = route.params ?? {};
 
-    const { token, user } = UserState() ?? {}
+    const { token, user , setUser } = UserState() ?? {}
     const { get, update, post } = useCrud()
     const [data, setData] = useState([])
-    console.log(user)
 
     useEffect(() => {
         const fetchingData = async () => {
 
             try {
-                console.log(token)
                 const response = await get(`api/v1/post?userId=${otherUser._id}`, token)
                 setData(response)
             } catch (error) {
@@ -49,10 +47,12 @@ const UserProfile = ({ navigation, route }: any) => {
     const followingUser = async () => {
         try {
             const response = await update(`api/v1/user/${otherUser._id}`, {}, token)
-
-            console.log('here is the follow response', response.user)
+            setUser(response.user);
+            setOtherInfo(response.otherUser)
+            console.log('here is other User',response.otherUser)
             const resChat = await post('api/v1/chat', { recieverId: otherUser._id }, token)
-            console.log(resChat)
+
+            
             console.log('you have followed this account and create chat with him successfully')
         } catch (error) {
             console.log(error)
@@ -114,7 +114,7 @@ const UserProfile = ({ navigation, route }: any) => {
                     <View>
                         <View style={styles.firstInfoProfile}>
                             <View style={[styles.followersInfo, { marginRight: 20 }]}>
-                                <Text style={{ fontWeight: '700', fontSize: 20, marginBottom: 4 }}>1k</Text>
+                                <Text style={{ fontWeight: '700', fontSize: 20, marginBottom: 4 }}>{otherUser.followers.length}</Text>
                                 <Text style={{ fontWeight: '500', fontSize: 14 }}>Followers</Text>
                             </View>
 
@@ -125,19 +125,19 @@ const UserProfile = ({ navigation, route }: any) => {
                                     { transform: [{ translateY: imageTranslateY }] },
                                 ]}
                             >
-                                <Image source={Me} style={styles.profileImg} />
+                                <Image source={{uri : otherUser.img}} style={styles.profileImg} />
                                 <Animated.View style={{ marginTop: 50 }}>
                                     <Text style={{ fontSize: 18, fontWeight: '700' }}>@{otherUser.name}</Text>
                                 </Animated.View>
                             </Animated.View>
                             <View style={[styles.followersInfo, { marginLeft: 20 }]}>
-                                <Text style={{ fontWeight: '700', fontSize: 20, marginBottom: 4 }}>342</Text>
+                                <Text style={{ fontWeight: '700', fontSize: 20, marginBottom: 4 }}>{otherUser.following.length}</Text>
                                 <Text style={{ fontWeight: '500', fontSize: 14 }}>Following</Text>
                             </View>
                         </View>
                         <View style={styles.bio}>
                             <Text style={styles.bioText}>
-                                My name is Ahmed. I like playing football in the rain and traveling all around the world.
+                                {otherUser.bio}
                             </Text>
                             <View style={styles.btnContainer}>
 

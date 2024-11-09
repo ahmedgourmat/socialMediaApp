@@ -18,6 +18,7 @@ interface UserContextProps {
 export function UserContext({ children }: UserContextProps) {
   const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
+  const [notiaction , setNotification] = useState<any>([])
   const [loading, setLoading] = useState<boolean>(true);
 
   // Fetch token and user info from AsyncStorage on initial render

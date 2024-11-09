@@ -16,7 +16,6 @@ const CommentsModal = ({ modalVisible, postId, setModalVisible, comments, loadin
       setText('')
       console.log(response)
       comments.unshift(response.comment)
-      console.log('comment created successfully')
     } catch (error) {
       console.log(error)
     }

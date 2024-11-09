@@ -8,81 +8,64 @@ import {
   Text,
   TouchableOpacity,
   View,
-  ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import backImg from '@/assets/images/backgroundProfile.png';
-import Me from '@/assets/images/ME.jpg';
 import Post from './Post';
-import { UserInfo } from '@/context/UserInfo';
 import { UserState } from '@/hooks/contextHook';
 import useCrud from '@/hooks/useCrud';
 
 const Profile = ({ navigation }: any) => {
-
-
-  const { user, token } = UserState() ?? {}
-  const [profile, setProfile] = useState(user)
-  const { get } = useCrud()
-  const [post, setPost] = useState([])
+  const { user, token } = UserState() ?? {};
+  const { get } = useCrud();
+  const [post, setPost] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const scrollY = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     const fetchingData = async () => {
-
       try {
-
-        console.log(token)
-
-        const response = await get(`api/v1/post?userId=${user._id}`, token)
-        setPost(response)
-
+        const response = await get(`api/v1/post?userId=${user?._id}`, token);
+        setPost(response);
       } catch (error) {
-        console.log(error)
+        console.log(error);
+      } finally {
+        setLoading(false);
       }
+    };
+    fetchingData();
+  }, [user, token]);
 
-    }
-
-    fetchingData()
-
-  }, [])
-
-
-  const scrollY = useRef(new Animated.Value(0)).current;
-
-  // Interpolating translateY for the image and container
+  // Interpolations for animations
   const imageTranslateY = scrollY.interpolate({
     inputRange: [0, 150],
-    outputRange: [0, 55], // Move image up as you scroll
+    outputRange: [0, 55],
     extrapolate: 'clamp',
   });
 
   const containerTranslateY = scrollY.interpolate({
     inputRange: [0, 150],
-    outputRange: [0, -200], // Move container up as you scroll
+    outputRange: [0, -200],
     extrapolate: 'clamp',
   });
 
-  // Interpolating borderRadius for the profileContainer
   const borderRadius = scrollY.interpolate({
     inputRange: [0, 150],
-    outputRange: [50, 0], // Adjust corner radius based on scroll
+    outputRange: [50, 0],
     extrapolate: 'clamp',
   });
 
-  // Interpolating opacity for the backIcon
   const arrowOpacity = scrollY.interpolate({
     inputRange: [0, 100],
-    outputRange: [1, 0], // Fade out as you scroll down
+    outputRange: [1, 0],
     extrapolate: 'clamp',
   });
 
   return (
     <SafeAreaView style={styles.container}>
       <ImageBackground source={backImg} style={styles.backImg}>
-        {/* Animated View for the backIcon */}
-        <Animated.View
-          style={[styles.backIcon, { opacity: arrowOpacity }]} // Apply interpolated opacity
-        >
+        <Animated.View style={[styles.backIcon, { opacity: arrowOpacity }]}>
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <Ionicons name="arrow-back" size={24} color="black" />
           </TouchableOpacity>
@@ -101,61 +84,63 @@ const Profile = ({ navigation }: any) => {
           <View>
             <View style={styles.firstInfoProfile}>
               <View style={[styles.followersInfo, { marginRight: 20 }]}>
-                <Text style={{ fontWeight: '700', fontSize: 20, marginBottom: 4 }}>{user.followers.length}</Text>
-                <Text style={{ fontWeight: '500', fontSize: 14 }}>Followers</Text>
+                <Text style={styles.followerCount}>{user?.followers?.length}</Text>
+                <Text style={styles.infoLabel}>Followers</Text>
               </View>
 
-              {/* Profile Image */}
               <Animated.View
                 style={[
                   styles.profileImageContainer,
                   { transform: [{ translateY: imageTranslateY }] },
                 ]}
               >
-                <Image source={user.img} style={styles.profileImg} />
-                <Animated.View style={{ marginTop: 50 }}>
-                  <Text style={{ fontSize: 18, fontWeight: '700' }}>@{user.name}</Text>
+                <Image source={{ uri: user?.img }} style={styles.profileImg} />
+                <Animated.View style={styles.userNameContainer}>
+                  <Text style={styles.userName}>@{user?.name}</Text>
                 </Animated.View>
               </Animated.View>
+
               <View style={[styles.followersInfo, { marginLeft: 20 }]}>
-                <Text style={{ fontWeight: '700', fontSize: 20, marginBottom: 4 }}>{user.following.length}</Text>
-                <Text style={{ fontWeight: '500', fontSize: 14 }}>Following</Text>
+                <Text style={styles.followerCount}>{user?.following?.length}</Text>
+                <Text style={styles.infoLabel}>Following</Text>
               </View>
             </View>
+
             <View style={styles.bio}>
-              <Text style={styles.bioText}>
-               {user.bio}
-              </Text>
+              <Text style={styles.bioText}>{user?.bio}</Text>
               <View style={styles.btnContainer}>
-                <TouchableOpacity style={[styles.btn, { backgroundColor: '#5790DF' }]}>
-                  <Text style={[styles.btnText, { color: 'white' }]}>Edit profile</Text>
+                <TouchableOpacity style={styles.editProfileBtn}>
+                  <Text style={styles.editProfileBtnText}>Edit profile</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.btn} onPress={()=>{navigation.navigate('Saves')}}>
+                <TouchableOpacity style={styles.btn} onPress={() => navigation.navigate('Saves')}>
                   <Text style={styles.btnText}>Saves</Text>
                 </TouchableOpacity>
               </View>
             </View>
+
             <Animated.ScrollView
-              contentContainerStyle={{ flexGrow: 1 }}
+              contentContainerStyle={styles.scrollContainer}
               onScroll={Animated.event(
                 [{ nativeEvent: { contentOffset: { y: scrollY } } }],
                 { useNativeDriver: true }
               )}
               scrollEventThrottle={16}
-              bounces={false}  // Disable bouncing/overscrolling
+              bounces={false}
             >
               <View style={styles.postContainer}>
-                {
+                {loading ? (
+                  <ActivityIndicator size="large" color="#5790DF" />
+                ) : (
                   post.map((item: any) => (
-                    <Post data={item} />
+                    <Post key={item._id} data={item} />
                   ))
-                }
+                )}
               </View>
             </Animated.ScrollView>
           </View>
         </Animated.View>
       </ImageBackground>
-    </SafeAreaView >
+    </SafeAreaView>
   );
 };
 
@@ -212,6 +197,15 @@ const styles = StyleSheet.create({
   followersInfo: {
     alignItems: 'center',
   },
+  followerCount: {
+    fontWeight: '700',
+    fontSize: 20,
+    marginBottom: 4,
+  },
+  infoLabel: {
+    fontWeight: '500',
+    fontSize: 14,
+  },
   bio: {
     paddingHorizontal: 40,
     marginTop: 55,
@@ -228,6 +222,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingBottom: 20,
   },
+  editProfileBtn: {
+    backgroundColor: '#5790DF',
+    width: 120,
+    height: 40,
+    borderRadius: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 10,
+  },
+  editProfileBtnText: {
+    color: 'white',
+    fontSize: 15,
+    fontWeight: '400',
+  },
   btn: {
     backgroundColor: 'white',
     width: 120,
@@ -240,6 +248,16 @@ const styles = StyleSheet.create({
   btnText: {
     fontSize: 15,
     fontWeight: '400',
+  },
+  userNameContainer: {
+    marginTop: 50,
+  },
+  userName: {
+    fontSize: 18,
+    fontWeight: '700',
+  },
+  scrollContainer: {
+    flexGrow: 1,
   },
   postContainer: {
     flex: 1,

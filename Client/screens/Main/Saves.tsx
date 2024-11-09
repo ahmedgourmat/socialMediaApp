@@ -17,7 +17,6 @@ const Saves = () => {
   const fetchSavedPosts = async () => {
     try {
       const response = await get('api/v1/saves', token); // Adjust the API endpoint as needed
-      console.log('here is saves', response)
       setSavedPosts(response); // Adjust based on the response structure
     } catch (error) {
       console.log(error);
